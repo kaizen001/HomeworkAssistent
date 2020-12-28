@@ -1,5 +1,6 @@
 import pygame
 import Robot
+import MyThread
 
 SCREEN_COLOR = (255, 255, 255)
 
@@ -13,18 +14,27 @@ def main():
     background = pygame.Surface(screen.get_size())
     background = background.convert()
     background.fill(SCREEN_COLOR)
-    # 创建
-    robot = Robot.Robot()
-    robot.draw(background)
 
+    # 创建初始状态的画面
+    background.fill(SCREEN_COLOR)
+    # 创建
+    robot = Robot.Robot(background)
+    robot.draw()
+    # 更新一次屏幕
     screen.blit(background, (0, 0))
     pygame.display.update()
+
+    # 让机器人开始眨眼
+    wink_thread = MyThread.WinkThread(robot, screen, background)
+    wink_thread.start()
+    wink_thread.join()
 
     running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+
     pygame.quit()
 
 
