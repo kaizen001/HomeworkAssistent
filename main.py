@@ -18,16 +18,21 @@ def main():
     # 创建初始状态的画面
     background.fill(SCREEN_COLOR)
     # 创建
-    robot = Robot.Robot(background)
+    robot = Robot.Robot(screen, background)
     robot.draw()
     # 更新一次屏幕
     screen.blit(background, (0, 0))
     pygame.display.update()
 
     # 让机器人开始眨眼
-    wink_thread = MyThread.WinkThread(robot, screen, background)
+    wink_thread = MyThread.WinkThread(robot)
     wink_thread.start()
     wink_thread.join()
+
+    # 让机器人开始说话
+    speak_thread = MyThread.SpeakThread(robot)
+    speak_thread.start()
+    speak_thread.join()
 
     running = True
     while running:

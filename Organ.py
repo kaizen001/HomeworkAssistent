@@ -34,6 +34,16 @@ class Mouth(Organ):
     def draw(self):  # 画个嘴巴
         pygame.draw.ellipse(self.screen, self.color, self.rect, self.size)
 
+    def close(self):
+        self.width //= 2
+        self.top += self.width // 2
+        self.set_rect()
+
+    def open(self):
+        self.top -= self.width // 2
+        self.width *= 2
+        self.set_rect()
+
 
 # 脸部，准确说是脸框 矩形
 class Face(Organ):
@@ -78,3 +88,13 @@ class Eye(Organ):
 
     def draw(self):  # 画眼睛
         pygame.draw.ellipse(self.screen, self.color, self.rect, self.size)
+
+    def close(self):  # 眨眼时闭眼
+        self.width = self.length // 2
+        self.top += self.width // 2
+        self.set_rect()
+
+    def open(self):  # 眨眼时睁眼
+        self.top -= self.width // 2
+        self.width = self.length
+        self.set_rect()
