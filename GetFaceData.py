@@ -1,5 +1,8 @@
+import queue
 import threading
 from enum import Enum
+from queue import Queue
+
 import cv2
 import os
 from math import sin, cos, radians
@@ -7,18 +10,27 @@ import ctypes
 import time
 import numpy as np
 
+
 class STATE(Enum):
     WRITING = 0
     SLEEPING = 1
     LOOKING_AROUND = 2
-    
+    DEFAULT = 3
+
+
 class CvData:
-    faceBiasX = 0#-100-100,float，左右方向偏移
-    faceBiasY = 0#-100-100,float，上下方向偏移
-    state = STATE.WRITING#状态
+    faceBiasX = 0  # -100-100,float，左右方向偏移
+    faceBiasY = 0  # -100-100,float，上下方向偏移
+    state = STATE.DEFAULT  # 状态
 
 
-cvData = None
+class OriginData:
+    isFaceHere = False
+    eyesNumber = 0
+    faceXRate = 0
+    faceYRate = 0
+
+cvData = CvData#读这个
 
 cap = cv2.VideoCapture(0)
 assets = os.path.join('assets')
@@ -54,14 +66,15 @@ def rotate_point(pos, img, angle):
     newy = -x * sin(radians(angle)) + y * cos(radians(angle)) + img.shape[0] * 0.4
     return int(newx), int(newy), pos[2], pos[3]
 
+
 class FaceRecogn(threading.Thread):
 
+    q = np.array([[0,0,0,0],[0,0,0,0]])
     def __init__(self, threadID, name, counter):
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
         self.counter = counter
-        cvData = CvData
         fps = cap.get(cv2.CAP_PROP_FPS)
         print("fps: ", fps)
 
@@ -82,6 +95,9 @@ class FaceRecogn(threading.Thread):
                 break
 
             imgout = img.copy()
+
+            dataBuff = OriginData
+            dataBuff.isFaceHere = False
             for angle in [0, -25, 25]:
                 rimg = rotate_image(img, angle)
 
@@ -92,21 +108,51 @@ class FaceRecogn(threading.Thread):
                     cv2.rectangle(imgout, (fx, fy), (fx + fw, fy + fh), (255, 0, 0), 2)
                     if fx < 0: fx = 0
                     if fy < 0: fy = 0
-
+                    #print("fx:",fx,"  fy:",fy,"  fw:",fw,"  fh:",fh)
                     # 眼睛
                     imge = img[fy:fy + fh, fx:fx + fw]
-                    cv2.imshow('face', imge)  # 魔性大脸
+                    #cv2.imshow('face', imge)  # 魔性大脸
                     imge = rotate_image(imge, angle)
-
                     edetected = reye.detectMultiScale(imge, **eyeSettings)
-                    print(len(edetected))
+                    #print(len(edetected))
                     if len(edetected):
                         for elm in edetected:
                             d = [rotate_point(elm, imge, -angle)]
                             for x, y, w, h in d:
                                 cv2.rectangle(imgout, (fx + x, fy + y), (fx + x + w, fy + y + h), (0, 255, 0), 2)
 
+                    dataBuff.isFaceHere = True
+                    dataBuff.faceXRate = ((fx + (fw / 2.0))-320)*100 / 320
+                    dataBuff.faceYRate = ((fy + (fh / 2.0))-180)*100 / 180
+                    dataBuff.eyesNumber = len(edetected)
                     break
+
+            if self.q[...,1].size==20:
+                self.q = np.insert(self.q, 0 ,[int(dataBuff.isFaceHere),int(dataBuff.eyesNumber),int(dataBuff.faceXRate),int(dataBuff.faceYRate)],axis = 0)
+                self.q = np.delete(self.q, 19,axis=0)
+                faceInNumber = sum(self.q[...,0])
+                eyeNumber = sum(self.q[...,1])
+                avgXRate = sum(self.q[...,2])/self.q[...,1].size
+                avgYRate = sum(self.q[...,3])/self.q[...,1].size
+
+                if faceInNumber>=10 and eyeNumber>=15 :
+                    cvData.state = STATE.WRITING
+                    cvData.faceBiasX = avgXRate
+                    cvData.faceBiasY = avgYRate
+                elif faceInNumber>=10:
+                    cvData.state = STATE.SLEEPING
+                    cvData.faceBiasX = avgXRate
+                    cvData.faceBiasY = avgYRate
+                else :
+                    cvData.state = STATE.LOOKING_AROUND
+                print(faceInNumber,'     ',eyeNumber)
+            else:
+                self.q = np.insert(self.q, 0 ,[int(dataBuff.isFaceHere),int(dataBuff.eyesNumber),int(dataBuff.faceXRate),int(dataBuff.faceYRate)],axis = 0)
+
+
+            print(cvData.state,'   ',cvData.faceBiasX,'   ',cvData.faceBiasY)
+            print(self.q[...,1].size)
+
 
             cv2.imshow('img', imgout)
             if cv2.waitKey(5) != -1:
