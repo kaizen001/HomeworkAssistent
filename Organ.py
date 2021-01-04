@@ -8,6 +8,8 @@ class Organ():
     color = (0, 0, 0)  # 颜色
     size = 0  # 大小
     rect = ()  # 图形尺寸
+    LEFT = 0
+    TOP = 0
 
     def __init__(self, screen, color, length, width, left, top, size):
         self.screen = screen  # 屏幕
@@ -17,6 +19,8 @@ class Organ():
         self.width = width  # 宽
         self.left = left  # 左间距
         self.top = top  # 上间距
+        self.LEFT = left  # 左间距
+        self.TOP = top  # 上间距
         self.set_rect()
 
     # 设置rect
@@ -25,8 +29,8 @@ class Organ():
 
     # 移动
     def move(self, x, y):
-        self.left += int(x * 6.4)
-        self.top += int(y * 3.5)
+        self.left = int(x * 6.4) + self.LEFT
+        self.top = int(y * 3.5) + self.TOP
         self.set_rect()
 
 

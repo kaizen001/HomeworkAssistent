@@ -28,15 +28,17 @@ def main():
     pygame.display.update()
 
     thread1 = GetFaceData.FaceRecogn(1, "CvThread", 1)
-
+    music = MyThread.Music(robot)
     # 让机器人开始眨眼
     wink_thread = MyThread.WinkThread(robot)
     working_thread = MyThread.Working(robot, GetFaceData.cvData)
     wink_thread.start()
+    music.start()
     thread1.start()
     working_thread.start()
     thread1.join()
     working_thread.join()
+    music.join()
     wink_thread.join()
 
     # 让机器人开始说话

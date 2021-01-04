@@ -105,11 +105,6 @@ class Robot:
         self.screen.blit(self.background, (0, 0))
         pygame.display.update()
 
-        self.face.move(-cvData.faceBiasX, -cvData.faceBiasY)
-        self.mouth.move(-cvData.faceBiasX, -cvData.faceBiasY)
-        self.left_eye.move(-cvData.faceBiasX, -cvData.faceBiasY)
-        self.right_eye.move(-cvData.faceBiasX, -cvData.faceBiasY)
-
 
     def angry(self):
         self.face.draw()
@@ -132,3 +127,6 @@ class Robot:
         pygame.draw.arc(self.background, RED,
                         (self.face.left, self.face.top - 2 * size, size * 2, size * 2),
                         math.pi * 7 / 6, math.pi * 5 / 3, 10)
+
+
+
