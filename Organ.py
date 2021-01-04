@@ -24,9 +24,9 @@ class Organ():
         self.rect = (self.left, self.top, self.length, self.width)
 
     # 移动
-    def move(self, cvDate):
-        self.left += int(cvDate.faceBiasX * 6.4)
-        self.top += int(cvDate.faceBiasY * 3.5)
+    def move(self, x, y):
+        self.left += int(x * 6.4)
+        self.top += int(y * 3.5)
         self.set_rect()
 
 

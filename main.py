@@ -21,29 +21,28 @@ def main():
     background.fill(SCREEN_COLOR)
     # 创建
     robot = Robot.Robot(screen, background)
-    robot.angry()
+    # robot.angry()
 
     # 更新一次屏幕
     screen.blit(background, (0, 0))
     pygame.display.update()
 
-    # robot.move(-20, -100)
+    thread1 = GetFaceData.FaceRecogn(1, "CvThread", 1)
+
     # 让机器人开始眨眼
-    '''wink_thread = MyThread.WinkThread(robot)
+    wink_thread = MyThread.WinkThread(robot)
+    working_thread = MyThread.Working(robot, GetFaceData.cvData)
     wink_thread.start()
+    thread1.start()
+    working_thread.start()
+    thread1.join()
+    working_thread.join()
     wink_thread.join()
 
     # 让机器人开始说话
-    speak_thread = MyThread.SpeakThread(robot)
-    speak_thread.start()
-    speak_thread.join()'''
-
-    faceR = GetFaceData.FaceRecogn(1, "CvThread", 1)
-    faceR.run()
-
-    thread1 = GetFaceData.FaceRecogn(1, "CvThread", 1)
-    thread1.start()
-    thread1.join()
+    # speak_thread = MyThread.SpeakThread(robot)
+    # speak_thread.start()
+    # speak_thread.join()
 
     running = True
     while running:

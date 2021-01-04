@@ -46,7 +46,7 @@ class Robot:
         self.left_eye = Organ.Eye(self.background, EYE_COLOR, EYE_LENGTH, EYE_WIDTH, LEFT_EYE_LEFT, EYE_TOP, EYE_SIZE)
         self.right_eye = Organ.Eye(self.background, EYE_COLOR, EYE_LENGTH, EYE_WIDTH, RIGHT_EYE_LEFT, EYE_TOP, EYE_SIZE)
         self.status = STATE.WRITING
-        # self.draw()
+        self.draw()
 
     # 画出机器人
     def draw(self):
@@ -91,15 +91,25 @@ class Robot:
         pygame.display.update()
 
     # 获得CvData然后进行移动
-    def move(self, x, y):  # x,y取值为-100-100
+    def move(self, cvData):  # x,y取值为-100-100
         self.background.fill(SCREEN_COLOR)
-        self.face.move(x, y)
-        self.mouth.move(x, y)
-        self.left_eye.move(x, y)
-        self.right_eye.move(x, y)
-        self.draw()
+        self.status = cvData.state
+        self.face.move(cvData.faceBiasX, cvData.faceBiasY)
+        self.mouth.move(cvData.faceBiasX, cvData.faceBiasY)
+        self.left_eye.move(cvData.faceBiasX, cvData.faceBiasY)
+        self.right_eye.move(cvData.faceBiasX, cvData.faceBiasY)
+        if self.status == STATE.WRITING:
+            self.draw()
+        else:
+            self.angry()
         self.screen.blit(self.background, (0, 0))
         pygame.display.update()
+
+        self.face.move(-cvData.faceBiasX, -cvData.faceBiasY)
+        self.mouth.move(-cvData.faceBiasX, -cvData.faceBiasY)
+        self.left_eye.move(-cvData.faceBiasX, -cvData.faceBiasY)
+        self.right_eye.move(-cvData.faceBiasX, -cvData.faceBiasY)
+
 
     def angry(self):
         self.face.draw()
