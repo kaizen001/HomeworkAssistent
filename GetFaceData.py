@@ -143,8 +143,8 @@ class FaceRecogn(threading.Thread):
                 self.q = np.delete(self.q, 19, axis=0)
                 faceInNumber = sum(self.q[..., 0])
                 eyeNumber = sum(self.q[..., 1])
-                avgXRate = sum(self.q[..., 2]) / self.q[..., 1].size
-                avgYRate = sum(self.q[..., 3]) / self.q[..., 1].size
+                avgXRate = dataBuff.faceXRate#sum(self.q[..., 2]) / self.q[..., 1].size
+                avgYRate = dataBuff.faceYRate#sum(self.q[..., 3]) / self.q[..., 1].size
 
                 if faceInNumber >= 5 and eyeNumber >= 5:
                     cvData.state = STATE.WRITING
@@ -169,7 +169,8 @@ class FaceRecogn(threading.Thread):
             #print(self.q[...,1].size)
 
 
-            # cv2.imshow('img', imgout)  # 用来显示图片，运行时可以删除
+            #cv2.imshow('img', imgout)  # 用来显示图片，运行时可以删除
+            #cv2.imshow('img0', img)  # 用来显示图片，运行时可以删除
             if cv2.waitKey(5) != -1:
                 break
 
