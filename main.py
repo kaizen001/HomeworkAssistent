@@ -40,6 +40,7 @@ def main():
     working_thread.join()
     music.join()
     wink_thread.join()
+    thread1.join()
 
     # 让机器人开始说话
     # speak_thread = MyThread.SpeakThread(robot)
@@ -48,6 +49,8 @@ def main():
 
     running = True
     while running:
+
+        print(111)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -56,4 +59,6 @@ def main():
 
 
 if __name__ == '__main__':
+
+
     main()

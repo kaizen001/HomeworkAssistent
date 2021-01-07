@@ -1,3 +1,4 @@
+
 import queue
 import threading
 from enum import Enum
@@ -96,6 +97,13 @@ class FaceRecogn(threading.Thread):
                 break
 
             imgout = img.copy()
+            img=cv2.cvtColor(img, cv2.COLOR_RGB2YCrCb)
+            imgYcbcr = cv2.split(img)
+            cv2.equalizeHist(imgYcbcr[0], imgYcbcr[0])
+            img = cv2.merge(imgYcbcr, 3)
+            img=cv2.cvtColor(img, cv2.COLOR_YCrCb2BGR)
+
+
 
             dataBuff = OriginData
             dataBuff.isFaceHere = False
@@ -148,14 +156,18 @@ class FaceRecogn(threading.Thread):
                     cvData.faceBiasY = avgYRate
                 else:
                     cvData.state = STATE.LOOKING_AROUND
-                # print(faceInNumber, '     ', eyeNumber)
+
+                #print(faceInNumber,'     ',eyeNumber)
+
             else:
                 self.q = np.insert(self.q, 0,
                                    [int(dataBuff.isFaceHere), int(dataBuff.eyesNumber), int(dataBuff.faceXRate),
                                     int(dataBuff.faceYRate)], axis=0)
 
-            # print(cvData.state, '   ', cvData.faceBiasX, '   ', cvData.faceBiasY)
-            # print(self.q[..., 1].size)
+
+            #print(cvData.state,'   ',cvData.faceBiasX,'   ',cvData.faceBiasY)
+            #print(self.q[...,1].size)
+
 
             # cv2.imshow('img', imgout)  # 用来显示图片，运行时可以删除
             if cv2.waitKey(5) != -1:
