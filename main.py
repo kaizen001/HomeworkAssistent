@@ -1,6 +1,7 @@
 import pygame
 import Robot
 import MyThread
+import GetFaceData as cv
 
 SCREEN_COLOR = (255, 255, 255)
 
@@ -26,11 +27,18 @@ def main():
 
     # 让机器人开始眨眼
     wink_thread = MyThread.WinkThread(robot, screen, background)
+
+
+    thread1 = cv.FaceRecogn(1, "CvThread", 1)
+    thread1.start()
     wink_thread.start()
     wink_thread.join()
+    thread1.join()
 
     running = True
     while running:
+
+        print(111)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -39,4 +47,6 @@ def main():
 
 
 if __name__ == '__main__':
+
+
     main()

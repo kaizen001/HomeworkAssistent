@@ -1,6 +1,7 @@
 import threading
 import pygame
 import time
+import GetFaceData as cv
 
 SCREEN_COLOR = (255, 255, 255)
 
@@ -26,3 +27,4 @@ class WinkThread(threading.Thread):
             self.robot.wink2()  # 睁眼阶段
             self.screen.blit(self.background, (0, 0))
             pygame.display.update()
+            print(cv.cvData.state)
