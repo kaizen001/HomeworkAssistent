@@ -31,7 +31,8 @@ class OriginData:
     faceXRate = 0
     faceYRate = 0
 
-cvData = CvData#读这个
+
+cvData = CvData  # 读这个
 
 cap = cv2.VideoCapture(0)
 assets = os.path.join('assets')
@@ -69,8 +70,8 @@ def rotate_point(pos, img, angle):
 
 
 class FaceRecogn(threading.Thread):
+    q = np.array([[0, 0, 0, 0], [0, 0, 0, 0]])
 
-    q = np.array([[0,0,0,0],[0,0,0,0]])
     def __init__(self, threadID, name, counter):
         threading.Thread.__init__(self)
         self.threadID = threadID
@@ -116,13 +117,13 @@ class FaceRecogn(threading.Thread):
                     cv2.rectangle(imgout, (fx, fy), (fx + fw, fy + fh), (255, 0, 0), 2)
                     if fx < 0: fx = 0
                     if fy < 0: fy = 0
-                    #print("fx:",fx,"  fy:",fy,"  fw:",fw,"  fh:",fh)
+                    # print("fx:",fx,"  fy:",fy,"  fw:",fw,"  fh:",fh)
                     # 眼睛
                     imge = img[fy:fy + fh, fx:fx + fw]
-                    #cv2.imshow('face', imge)  # 魔性大脸
+                    # cv2.imshow('face', imge)  # 魔性大脸
                     imge = rotate_image(imge, angle)
                     edetected = reye.detectMultiScale(imge, **eyeSettings)
-                    #print(len(edetected))
+                    # print(len(edetected))
                     if len(edetected):
                         for elm in edetected:
                             d = [rotate_point(elm, imge, -angle)]
@@ -130,58 +131,58 @@ class FaceRecogn(threading.Thread):
                                 cv2.rectangle(imgout, (fx + x, fy + y), (fx + x + w, fy + y + h), (0, 255, 0), 2)
 
                     dataBuff.isFaceHere = True
-                    dataBuff.faceXRate = ((fx + (fw / 2.0))-320)*100 / 320
-                    dataBuff.faceYRate = ((fy + (fh / 2.0))-180)*100 / 180
+                    dataBuff.faceXRate = ((fx + (fw / 2.0)) - 320) * 100 / 320
+                    dataBuff.faceYRate = ((fy + (fh / 2.0)) - 180) * 100 / 180
                     dataBuff.eyesNumber = len(edetected)
                     break
 
-            if self.q[...,1].size==20:
-                self.q = np.insert(self.q, 0 ,[int(dataBuff.isFaceHere),int(dataBuff.eyesNumber),int(dataBuff.faceXRate),int(dataBuff.faceYRate)],axis = 0)
-                self.q = np.delete(self.q, 19,axis=0)
-                faceInNumber = sum(self.q[...,0])
-                eyeNumber = sum(self.q[...,1])
-                avgXRate = sum(self.q[...,2])/self.q[...,1].size
-                avgYRate = sum(self.q[...,3])/self.q[...,1].size
+            if self.q[..., 1].size == 20:
+                self.q = np.insert(self.q, 0,
+                                   [int(dataBuff.isFaceHere), int(dataBuff.eyesNumber), int(dataBuff.faceXRate),
+                                    int(dataBuff.faceYRate)], axis=0)
+                self.q = np.delete(self.q, 19, axis=0)
+                faceInNumber = sum(self.q[..., 0])
+                eyeNumber = sum(self.q[..., 1])
+                avgXRate = sum(self.q[..., 2]) / self.q[..., 1].size
+                avgYRate = sum(self.q[..., 3]) / self.q[..., 1].size
 
-                if faceInNumber>=10 and eyeNumber>=15 :
+                if faceInNumber >= 5 and eyeNumber >= 5:
                     cvData.state = STATE.WRITING
                     cvData.faceBiasX = avgXRate
                     cvData.faceBiasY = avgYRate
-                elif faceInNumber>=10:
+                elif faceInNumber >= 5:
                     cvData.state = STATE.SLEEPING
                     cvData.faceBiasX = avgXRate
                     cvData.faceBiasY = avgYRate
-                else :
+                else:
                     cvData.state = STATE.LOOKING_AROUND
+
                 #print(faceInNumber,'     ',eyeNumber)
+
             else:
-                self.q = np.insert(self.q, 0 ,[int(dataBuff.isFaceHere),int(dataBuff.eyesNumber),int(dataBuff.faceXRate),int(dataBuff.faceYRate)],axis = 0)
+                self.q = np.insert(self.q, 0,
+                                   [int(dataBuff.isFaceHere), int(dataBuff.eyesNumber), int(dataBuff.faceXRate),
+                                    int(dataBuff.faceYRate)], axis=0)
 
 
             #print(cvData.state,'   ',cvData.faceBiasX,'   ',cvData.faceBiasY)
             #print(self.q[...,1].size)
 
 
-            cv2.imshow('img', imgout)
+            # cv2.imshow('img', imgout)  # 用来显示图片，运行时可以删除
             if cv2.waitKey(5) != -1:
                 break
 
         cv2.destroyAllWindows()
         quit()
 
-
         print("退出线程：" + self.name)
 
 
-
-if __name__=='__main__':
-    faceR = FaceRecogn(1,"CvThread",1)
+if __name__ == '__main__':
+    faceR = FaceRecogn(1, "CvThread", 1)
     faceR.run()
 
-
-    thread1 = FaceRecogn(1,"CvThread",1)
+    thread1 = FaceRecogn(1, "CvThread", 1)
     thread1.start()
     thread1.join()
-
-
-    
